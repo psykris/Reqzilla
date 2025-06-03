@@ -1,0 +1,2417 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Clock, ChevronLeft, ChevronRight, CheckCircle, XCircle, AlertCircle, Trophy, RefreshCw, BookOpen, Target } from 'lucide-react';
+
+// Complete Mock Exam 1 - 45 questions following IREB format
+const mockExam1 = {
+  examId: "mock1",
+  title: "IREB CPRE AL RE@Agile Mock Exam 1",
+  totalQuestions: 45,
+  duration: 75,
+  totalPoints: 55,
+  passingPercentage: 70,
+  questions: [
+    // Chapter 1: What is RE@Agile
+    {
+      id: 1,
+      category: "What is RE@Agile",
+      question: "What is the definition of RE@Agile?",
+      type: "single",
+      options: [
+        "RE@Agile is an iterative and incremental approach",
+        "RE@Agile is a scrum-based approach",
+        "RE@Agile is a lean approach",
+        "RE@Agile is a hybrid approach"
+      ],
+      correctAnswer: [3],
+      points: 1,
+      explanation: "RE@Agile is a hybrid approach that combines traditional Requirements Engineering practices with agile methodologies, adapting RE techniques to work effectively in agile environments."
+    },
+    {
+      id: 2,
+      category: "What is RE@Agile",
+      question: "Indicate which of the following roles are supportive to the Product Owner by doing Requirements Engineering work.",
+      type: "classification",
+      options: [
+        { text: "Member of the development team who is an expert for databases", supportive: false },
+        { text: "Usability Engineer", supportive: true },
+        { text: "Business Analyst", supportive: true },
+        { text: "Test Manager", supportive: false }
+      ],
+      points: 1,
+      explanation: "Usability Engineers and Business Analysts directly support RE activities, while database experts and Test Managers have different primary responsibilities."
+    },
+    {
+      id: 3,
+      category: "What is RE@Agile",
+      question: "Who is responsible for the quality of the requirements according to Scrum?",
+      type: "single",
+      options: [
+        "The demand specialists like Requirements Engineers",
+        "The Scrum Team",
+        "The Product Owner",
+        "The QA experts like testers"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "In Scrum, the Product Owner is ultimately responsible for the quality of requirements, though they may delegate some RE activities to specialists."
+    },
+    {
+      id: 4,
+      category: "What is RE@Agile",
+      question: "Which TWO principles are fundamental to RE@Agile?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Requirements emerge and evolve throughout the project",
+        "All requirements must be documented before coding starts",
+        "Continuous stakeholder collaboration is essential",
+        "Change is avoided through comprehensive upfront analysis"
+      ],
+      correctAnswer: [0, 2],
+      points: 2,
+      explanation: "RE@Agile embraces emergent requirements and continuous collaboration, unlike traditional approaches that emphasize upfront documentation."
+    },
+    {
+      id: 5,
+      category: "What is RE@Agile",
+      question: "In RE@Agile, how are requirements typically refined?",
+      type: "single",
+      options: [
+        "In a single comprehensive phase before development",
+        "Just-in-time, as they approach implementation",
+        "Only during sprint retrospectives",
+        "Exclusively by external consultants"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "Just-in-time refinement ensures requirements are detailed when needed, reducing waste from premature specification."
+    },
+
+    // Chapter 2: A Clean Project Start
+    {
+      id: 6,
+      category: "A Clean Project Start",
+      question: "Indicate which of the following questions are supportive for the definition of the system boundary.",
+      type: "classification",
+      options: [
+        { text: "Which goals of the system have to be achieved by users of the context?", supportive: false },
+        { text: "Which technical or user interfaces have to be provided by the system to the context?", supportive: true },
+        { text: "Which features or functionalities in the context become obsolete with the new system?", supportive: true },
+        { text: "Which features or functionalities have to be provided by the system and which have to be provided by the context?", supportive: true }
+      ],
+      points: 2,
+      explanation: "System boundary questions focus on what's inside vs. outside the system, interfaces, and clear delineation of responsibilities."
+    },
+    {
+      id: 7,
+      category: "A Clean Project Start",
+      question: "Assume you are a Product Owner for an online shop. Which TWO of the following stakeholders are the most important ones?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "The tax consultants of the buyers",
+        "The delivering organization for bought products",
+        "The buyers of products sold in the online shop",
+        "The spouse/husband of the buyer",
+        "The testers of the development team"
+      ],
+      correctAnswer: [1, 2],
+      points: 2,
+      explanation: "Direct users (buyers) and critical business partners (delivery organizations) are primary stakeholders for an online shop."
+    },
+    {
+      id: 8,
+      category: "A Clean Project Start",
+      question: "A development effort for an existing online shop experiences frequent changes of vision and goals. Select the TWO most probable explanations.",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "The product owner has no clear direction for the online shop",
+        "The development team has no clear vision on how to implement the online shop",
+        "The market of the online shop undergoes radical changes",
+        "The underlying technology framework had a major software release",
+        "Based on quarterly figures, the client changed direction"
+      ],
+      correctAnswer: [0, 2],
+      points: 1,
+      explanation: "Vision changes typically stem from unclear product ownership or significant market shifts, not technical factors."
+    },
+    {
+      id: 9,
+      category: "A Clean Project Start",
+      question: "Which artifact is MOST essential for achieving a 'clean project start' in an agile context?",
+      type: "single",
+      options: [
+        "Detailed technical architecture document",
+        "Shared product vision",
+        "Complete test strategy",
+        "Fixed project budget"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "A shared product vision aligns all stakeholders and provides direction, making it the most essential starting artifact."
+    },
+    {
+      id: 10,
+      category: "A Clean Project Start",
+      question: "The Onion Model is primarily used to:",
+      type: "single",
+      options: [
+        "Define technical architecture layers",
+        "Categorize and prioritize stakeholders",
+        "Structure the product backlog",
+        "Plan sprint ceremonies"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "The Onion Model helps identify and categorize stakeholders based on their relationship to the system."
+    },
+
+    // Chapter 3: Handling Functional Requirements
+    {
+      id: 11,
+      category: "Handling Functional Requirements",
+      question: "Which of the following are the TWO most valuable advantages of handling requirements on different levels of abstraction?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Requirements on different levels are easier to be handled in tools",
+        "More abstract requirements help to keep an overview",
+        "Dependencies between levels are detected automatically",
+        "Decomposition 'only as needed' saves time",
+        "Ultimately the number of requirements is reduced"
+      ],
+      correctAnswer: [1, 3],
+      points: 1,
+      explanation: "Abstract requirements provide overview while just-in-time decomposition prevents wasted effort on unnecessary details."
+    },
+    {
+      id: 12,
+      category: "Handling Functional Requirements",
+      question: "Which of the following checks would NOT be found in a Definition of Ready?",
+      type: "single",
+      options: [
+        "The story is small enough to be implemented within a sprint",
+        "The story has been estimated during refinement meetings",
+        "At least 90% of the test cases linked to the story were executed successfully",
+        "The Product Owner has defined acceptance criteria"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Test execution happens after implementation, so it cannot be part of Definition of Ready which precedes development."
+    },
+    {
+      id: 13,
+      category: "Handling Functional Requirements",
+      question: "Which statements concerning quality assurance are true for most agile projects?",
+      type: "truefalse",
+      statements: [
+        { text: "User stories must be perfect to be implemented by the team", correct: false },
+        { text: "User stories must be good enough so that the team can estimate them", correct: true },
+        { text: "User stories should fulfill the quality criteria defined in the Definition of Ready", correct: true },
+        { text: "User stories should fulfill the quality criteria defined in the Definition of Done", correct: false }
+      ],
+      points: 1,
+      explanation: "Stories need to be 'good enough' for estimation and meet DoR criteria. DoD applies to completed work, not incoming stories."
+    },
+    {
+      id: 14,
+      category: "Handling Functional Requirements",
+      question: "Which TWO of the following are INVEST criteria?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Valuable",
+        "Non-negotiable",
+        "Interactive",
+        "Volatile",
+        "Independent"
+      ],
+      correctAnswer: [0, 4],
+      points: 1,
+      explanation: "INVEST stands for Independent, Negotiable, Valuable, Estimable, Small, Testable."
+    },
+    {
+      id: 15,
+      category: "Handling Functional Requirements",
+      question: "In the context of user stories, what does the 'Confirmation' in the 3C model refer to?",
+      type: "single",
+      options: [
+        "Stakeholder approval signatures",
+        "Acceptance criteria and tests",
+        "Sprint planning confirmation",
+        "Budget approval"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "The 3C model (Card, Conversation, Confirmation) uses Confirmation to mean acceptance criteria that confirm story completion."
+    },
+
+    // Chapter 4: Handling Quality Requirements and Constraints
+    {
+      id: 16,
+      category: "Quality Requirements and Constraints",
+      question: "Determine which TWO statements are most appropriate regarding acceptance criteria for quality requirements.",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Quality requirements inherit acceptance criteria",
+        "Quality requirements need acceptance criteria",
+        "Quality requirements are acceptance criteria",
+        "Quality requirements and acceptance criteria have a 1:1 relationship",
+        "Acceptance criteria for quality requirements can add allowed tolerances"
+      ],
+      correctAnswer: [1, 4],
+      points: 1,
+      explanation: "Quality requirements need specific acceptance criteria, which often include measurable tolerances or thresholds."
+    },
+    {
+      id: 17,
+      category: "Quality Requirements and Constraints",
+      question: "Determine which statements regarding quality trees are true.",
+      type: "truefalse",
+      statements: [
+        { text: "Quality trees are a proven way to structure quality requirements", correct: true },
+        { text: "The branches of the quality tree are categories of qualities, followed by subcategories", correct: true },
+        { text: "The leaves of the quality tree show concrete scenarios for a category", correct: true },
+        { text: "The leaves are precise enough so they need no acceptance criteria", correct: false }
+      ],
+      points: 1,
+      explanation: "Quality trees structure requirements hierarchically, but leaf scenarios still need specific acceptance criteria."
+    },
+    {
+      id: 18,
+      category: "Quality Requirements and Constraints",
+      question: "Which statement best describes the relationship between quality requirements and the Definition of Done?",
+      type: "single",
+      options: [
+        "Quality requirements must be added to the Definition of Done",
+        "Quality requirements should not be part of the Definition of Done",
+        "Whether quality requirements are in DoD is solely decided by the development team",
+        "The criteria 'All relevant quality requirements are fulfilled' is part of the DoD"
+      ],
+      correctAnswer: [3],
+      points: 1,
+      explanation: "The DoD should include a general criterion ensuring all applicable quality requirements are met for each item."
+    },
+    {
+      id: 19,
+      category: "Quality Requirements and Constraints",
+      question: "Determine whether the given constraints are product constraints or process constraints.",
+      type: "classification",
+      options: [
+        { text: "Use a given off-the-shelf software", product: true },
+        { text: "Meet compliance regulations about deployment", product: false },
+        { text: "Meet budget constraints", product: false },
+        { text: "Reuse functional components", product: true },
+        { text: "Use prescribed technology", product: true }
+      ],
+      points: 2,
+      explanation: "Product constraints affect the solution itself (technology, components), while process constraints affect how work is done (budget, compliance processes)."
+    },
+    {
+      id: 20,
+      category: "Quality Requirements and Constraints",
+      question: "Determine whether the following are true or false regarding classification of quality requirements.",
+      type: "truefalse",
+      statements: [
+        { text: "Capacity is one of the categories of quality requirements", correct: false },
+        { text: "Capability is one of the categories for quality requirements", correct: false },
+        { text: "Maintainability is one of the categories for quality requirements", correct: true },
+        { text: "Reliability is one of the categories for quality requirements", correct: true }
+      ],
+      points: 2,
+      explanation: "Standard quality categories include maintainability and reliability (ISO 25010), not capacity or capability."
+    },
+
+    // Chapter 5: Prioritizing and Estimating Requirements
+    {
+      id: 21,
+      category: "Prioritizing and Estimating",
+      question: "Which statement is most appropriate regarding alignment of business value measurement to strategic goals?",
+      type: "single",
+      options: [
+        "Let stakeholders 'buy' features based on an artificial budget",
+        "Compare delivered increments to the product roadmap",
+        "All accepted deliverables share the same value as part of velocity",
+        "Value is assigned in sprint planning and collected during sprint review"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "Comparing actual deliveries against the strategic roadmap provides the best alignment measurement."
+    },
+    {
+      id: 22,
+      category: "Prioritizing and Estimating",
+      question: "What are TWO most appropriate methods for ranking backlog items?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Use MoSCoW",
+        "Assign Story Points and rank by those values",
+        "Assign tasks and rank by number of tasks",
+        "Assign Business Value and rank by those values",
+        "Use SMART"
+      ],
+      correctAnswer: [0, 3],
+      points: 1,
+      explanation: "MoSCoW and Business Value are prioritization techniques. Story Points measure effort, not priority."
+    },
+    {
+      id: 23,
+      category: "Prioritizing and Estimating",
+      question: "Which TWO statements are requirement dependencies typically determined during elicitation?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Dependencies to Business Events",
+        "Dependencies to other products",
+        "Technical dependencies",
+        "Dependencies to other development teams",
+        "Dependencies between implementation teams"
+      ],
+      correctAnswer: [1, 2],
+      points: 1,
+      explanation: "Product and technical dependencies are discovered during elicitation. Team dependencies emerge during planning."
+    },
+    {
+      id: 24,
+      category: "Prioritizing and Estimating",
+      question: "Which statements regarding dependencies between business value and risks are correct?",
+      type: "truefalse",
+      statements: [
+        { text: "Business value and risks are independent", correct: false },
+        { text: "Focusing on specific business value might raise specific risks", correct: true },
+        { text: "Very often potential business value and risks are interdependent", correct: true },
+        { text: "Focusing on a specific risk implements the business value automatically", correct: false }
+      ],
+      points: 1,
+      explanation: "Business value and risks are often interdependent - pursuing value can introduce risks, but addressing risks doesn't automatically create value."
+    },
+    {
+      id: 25,
+      category: "Prioritizing and Estimating",
+      question: "What are the TWO most appropriate actions to create a mid-term forecast?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Estimate an appropriate amount of the Product Backlog",
+        "Estimate the whole Product Backlog",
+        "Ask architects and SMEs to do the estimate",
+        "Pre-assign requirements to future sprints based on velocity",
+        "Calculate average estimate for unestimated elements"
+      ],
+      correctAnswer: [0, 4],
+      points: 1,
+      explanation: "Estimate enough of the backlog for planning purposes and use averages for the rest - full estimation is wasteful."
+    },
+
+    // Chapter 6: Scaling RE@Agile
+    {
+      id: 26,
+      category: "Scaling RE@Agile",
+      question: "Which TWO of the following are NOT valid scaling frameworks?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "SAFe",
+        "Scrum@Scale",
+        "LeSS",
+        "BassoNover",
+        "ScrumBan"
+      ],
+      correctAnswer: [3, 4],
+      points: 1,
+      explanation: "SAFe, Scrum@Scale, and LeSS are established scaling frameworks. BassoNover is fictional, and ScrumBan is a hybrid method, not a scaling framework."
+    },
+    {
+      id: 27,
+      category: "Scaling RE@Agile",
+      question: "According to which hierarchy levels should a Product Backlog be structured?",
+      type: "single",
+      options: [
+        "Epics, Features, User Stories",
+        "Theme, Initiative, Epic, User Story",
+        "Requirements Area, Feature, User Story",
+        "There are no definite rules for naming the hierarchy levels"
+      ],
+      correctAnswer: [3],
+      points: 1,
+      explanation: "Different frameworks use different hierarchies - there's no universal standard for backlog level naming."
+    },
+    {
+      id: 28,
+      category: "Scaling RE@Agile",
+      question: "When scaling, which is the only valid statement regarding responsibility for requirements?",
+      type: "single",
+      options: [
+        "There may be only one Product Owner for each requirement level",
+        "The person responsible for overall requirements is called Product Owner in all frameworks",
+        "Depending on the framework, role definitions and responsibilities must be defined",
+        "The Product Owner is the only person allowed to structure requirements"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Different scaling frameworks define different roles and responsibilities - there's no one-size-fits-all approach."
+    },
+    {
+      id: 29,
+      category: "Scaling RE@Agile",
+      question: "Which TWO statements best describe the 'Cone of Uncertainty'?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "The further in the future, the more uncertain the content and completion date",
+        "Shorter iterations provide faster customer feedback",
+        "Precise requirements lead to better increments",
+        "More teams require better coordination",
+        "Short-term requirements are easier to estimate"
+      ],
+      correctAnswer: [0, 4],
+      points: 1,
+      explanation: "The Cone of Uncertainty shows that uncertainty increases with time horizon - near-term items are more certain."
+    },
+    {
+      id: 30,
+      category: "Scaling RE@Agile",
+      question: "Which approaches are well suited for product validation?",
+      type: "classification",
+      options: [
+        { text: "Compare implemented requirements with product backlog", wellSuited: false },
+        { text: "Large stakeholder demonstrations", wellSuited: true },
+        { text: "Send increments to potential customers for feedback", wellSuited: true },
+        { text: "Evaluate test results against test coverage plans", wellSuited: false }
+      ],
+      points: 2,
+      explanation: "Product validation focuses on stakeholder feedback and real user validation, not internal verification activities."
+    },
+
+    // Mixed Topics - Advanced Questions
+    {
+      id: 31,
+      category: "Requirements Documentation",
+      question: "In RE@Agile, when is detailed requirements documentation most appropriate?",
+      type: "single",
+      options: [
+        "For all user stories before sprint planning",
+        "Only for regulatory compliance needs",
+        "When the cost of change is high or irreversible",
+        "Never - agile means no documentation"
+      ],
+      correctAnswer: [2],
+      points: 2,
+      explanation: "Detailed documentation is valuable when changes are expensive or difficult to reverse, not just for compliance."
+    },
+    {
+      id: 32,
+      category: "Requirements Elicitation",
+      question: "Which THREE techniques are most effective for eliciting requirements in distributed agile teams?",
+      type: "multiple",
+      selectCount: 3,
+      options: [
+        "Online collaborative workshops",
+        "Asynchronous documentation reviews",
+        "Face-to-face interviews only",
+        "Digital prototyping tools",
+        "Email-based requirement gathering",
+        "Virtual story mapping sessions"
+      ],
+      correctAnswer: [0, 3, 5],
+      points: 2,
+      explanation: "Digital collaboration tools, prototypes, and virtual workshops enable effective distributed elicitation."
+    },
+    {
+      id: 33,
+      category: "Backlog Management",
+      question: "What is the recommended approach for managing technical debt in the product backlog?",
+      type: "single",
+      options: [
+        "Keep it in a separate technical backlog",
+        "Make it visible as backlog items with business value",
+        "Address it only during hardening sprints",
+        "Let the development team handle it invisibly"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "Technical debt should be visible in the product backlog with clear business value to enable proper prioritization."
+    },
+    {
+      id: 34,
+      category: "Stakeholder Management",
+      question: "Match each stakeholder engagement technique with its primary purpose in RE@Agile.",
+      type: "classification",
+      options: [
+        { text: "Sprint Review", purpose: "validation" },
+        { text: "User Story Mapping", purpose: "elicitation" },
+        { text: "Backlog Refinement", purpose: "elicitation" },
+        { text: "Sprint Demo", purpose: "validation" }
+      ],
+      points: 2,
+      explanation: "Reviews and demos validate built features, while mapping and refinement elicit new requirements."
+    },
+    {
+      id: 35,
+      category: "Quality Attributes",
+      question: "How should performance requirements be specified in user stories?",
+      type: "single",
+      options: [
+        "As separate technical stories",
+        "In the 'so that' clause of the user story",
+        "As acceptance criteria with measurable thresholds",
+        "Only in the Definition of Done"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Performance requirements work best as specific, measurable acceptance criteria on relevant user stories."
+    },
+    {
+      id: 36,
+      category: "Requirements Modeling",
+      question: "Which TWO modeling techniques are most valuable in RE@Agile contexts?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Comprehensive UML class diagrams",
+        "Lightweight domain models",
+        "Detailed sequence diagrams for all features",
+        "Story maps",
+        "Complete entity-relationship diagrams"
+      ],
+      correctAnswer: [1, 3],
+      points: 1,
+      explanation: "Lightweight models and story maps provide just enough structure without excessive documentation overhead."
+    },
+    {
+      id: 37,
+      category: "Process Integration",
+      question: "In a DevOps context, how should requirements be traced?",
+      type: "single",
+      options: [
+        "Manual traceability matrices",
+        "Automated linking through toolchain integration",
+        "Traceability is not needed in DevOps",
+        "Quarterly traceability audits"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "DevOps emphasizes automation - traceability should flow through integrated tools, not manual processes."
+    },
+    {
+      id: 38,
+      category: "Estimation Techniques",
+      question: "When using Planning Poker, what should happen when estimates vary significantly?",
+      type: "single",
+      options: [
+        "Use the average of all estimates",
+        "The Product Owner decides",
+        "Discuss assumptions and re-estimate",
+        "Always use the highest estimate"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Large variations indicate different assumptions that need discussion before reaching consensus."
+    },
+    {
+      id: 39,
+      category: "Requirements Validation",
+      question: "Which validation techniques are most effective for quality requirements?",
+      type: "truefalse",
+      statements: [
+        { text: "Automated performance tests in CI/CD pipeline", correct: true },
+        { text: "Manual inspection by architects only", correct: false },
+        { text: "Prototype testing with real users", correct: true },
+        { text: "Deferring validation until system testing", correct: false }
+      ],
+      points: 2,
+      explanation: "Early, automated validation and user testing catch quality issues sooner than late-stage manual validation."
+    },
+    {
+      id: 40,
+      category: "Hybrid Approaches",
+      question: "In a 'Water-Scrum-Fall' environment, how should requirements be managed?",
+      type: "single",
+      options: [
+        "Full upfront requirements like waterfall",
+        "Pure agile with no documentation",
+        "Baseline key requirements, elaborate details iteratively",
+        "Ignore the waterfall phases"
+      ],
+      correctAnswer: [2],
+      points: 2,
+      explanation: "Hybrid environments need balanced approaches - baseline critical requirements while maintaining agility for details."
+    },
+    {
+      id: 41,
+      category: "Continuous Improvement",
+      question: "How should requirements practices be improved in RE@Agile?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Annual process audits",
+        "Sprint retrospective discussions",
+        "Metrics on requirement defects",
+        "Standardize all practices across teams",
+        "Executive mandates"
+      ],
+      correctAnswer: [1, 2],
+      points: 1,
+      explanation: "Continuous improvement comes from regular retrospectives and data-driven insights, not top-down standardization."
+    },
+    {
+      id: 42,
+      category: "Tool Support",
+      question: "What are essential features for RE@Agile tool support?",
+      type: "truefalse",
+      statements: [
+        { text: "Real-time collaboration capabilities", correct: true },
+        { text: "Comprehensive upfront modeling", correct: false },
+        { text: "Integration with development tools", correct: true },
+        { text: "Strict approval workflows", correct: false }
+      ],
+      points: 1,
+      explanation: "Agile tools need collaboration and integration, not heavy process controls."
+    },
+    {
+      id: 43,
+      category: "Regulatory Compliance",
+      question: "In regulated industries (e.g., medical devices), how should RE@Agile address compliance?",
+      type: "single",
+      options: [
+        "Abandon agile practices",
+        "Create all documentation upfront",
+        "Build compliance into Definition of Done incrementally",
+        "Handle compliance in separate waterfall phases"
+      ],
+      correctAnswer: [2],
+      points: 3,
+      explanation: "Compliance can be achieved incrementally by building requirements into the DoD and maintaining continuous documentation."
+    },
+    {
+      id: 44,
+      category: "Metrics and Measurement",
+      question: "Which THREE metrics best indicate healthy RE@Agile practices?",
+      type: "multiple",
+      selectCount: 3,
+      options: [
+        "Requirements stability index",
+        "Story rejection rate during sprint",
+        "Stakeholder satisfaction scores",
+        "Number of requirements documented",
+        "Cycle time from idea to production",
+        "Requirements to code ratio"
+      ],
+      correctAnswer: [1, 2, 4],
+      points: 2,
+      explanation: "Healthy practices show in low rejection rates, satisfied stakeholders, and fast cycle times - not documentation volume."
+    },
+    {
+      id: 45,
+      category: "Organizational Change",
+      question: "When transitioning to RE@Agile, what is the MOST critical success factor?",
+      type: "single",
+      options: [
+        "Comprehensive tool implementation",
+        "Detailed process documentation",
+        "Stakeholder buy-in and cultural change",
+        "Hiring agile coaches"
+      ],
+      correctAnswer: [2],
+      points: 2,
+      explanation: "Cultural change and stakeholder buy-in are fundamental - tools and processes support but don't drive transformation."
+    }
+  ]
+};
+
+// Mock Exam 2 - Different questions, same structure
+const mockExam2 = {
+  examId: "mock2",
+  title: "IREB CPRE AL RE@Agile Mock Exam 2",
+  totalQuestions: 45,
+  duration: 75,
+  totalPoints: 55,
+  passingPercentage: 70,
+  questions: [
+    // Chapter 1: What is RE@Agile
+    {
+      id: 1,
+      category: "What is RE@Agile",
+      question: "Which statement best describes the relationship between traditional RE and Agile?",
+      type: "single",
+      options: [
+        "They are completely incompatible approaches",
+        "RE@Agile adapts RE practices to work within agile frameworks",
+        "Agile completely replaces the need for RE",
+        "RE practices remain unchanged in agile contexts"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "RE@Agile is about adapting and integrating RE practices to work effectively within agile frameworks."
+    },
+    {
+      id: 2,
+      category: "What is RE@Agile",
+      question: "Determine which activities are typically performed by a Requirements Engineer supporting a Product Owner.",
+      type: "truefalse",
+      statements: [
+        { text: "Facilitating requirements workshops", correct: true },
+        { text: "Making final prioritization decisions", correct: false },
+        { text: "Creating and maintaining requirements models", correct: true },
+        { text: "Approving sprint goals", correct: false }
+      ],
+      points: 1,
+      explanation: "Requirements Engineers support through facilitation and modeling, but Product Owners retain decision authority."
+    },
+    {
+      id: 3,
+      category: "What is RE@Agile",
+      question: "In scaled agile environments, how is requirements work typically distributed?",
+      type: "single",
+      options: [
+        "One person handles all requirements for all teams",
+        "Each team has completely independent requirements",
+        "Requirements specialists support multiple teams with coordination",
+        "Requirements work is eliminated"
+      ],
+      correctAnswer: [2],
+      points: 2,
+      explanation: "Scaling requires coordinated requirements support across teams while maintaining team autonomy."
+    },
+    {
+      id: 4,
+      category: "What is RE@Agile",
+      question: "Which TWO factors most influence the level of requirements documentation needed?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Regulatory requirements",
+        "Team location (distributed vs co-located)",
+        "Programming language used",
+        "Sprint length",
+        "Phase of the moon"
+      ],
+      correctAnswer: [0, 1],
+      points: 1,
+      explanation: "Regulations mandate certain documentation, and distributed teams need more written communication than co-located ones."
+    },
+    {
+      id: 5,
+      category: "What is RE@Agile",
+      question: "What is the primary goal of RE@Agile?",
+      type: "single",
+      options: [
+        "Eliminate all requirements documentation",
+        "Ensure requirements support iterative delivery of value",
+        "Delay requirements decisions as long as possible",
+        "Create comprehensive requirements before coding"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "RE@Agile focuses on supporting iterative value delivery, not eliminating documentation or delaying decisions."
+    },
+
+    // Chapter 2: A Clean Project Start
+    {
+      id: 6,
+      category: "A Clean Project Start",
+      question: "Which elements are essential for a clean project start? Mark all that apply.",
+      type: "truefalse",
+      statements: [
+        { text: "Clear product vision shared by stakeholders", correct: true },
+        { text: "Complete requirements specification", correct: false },
+        { text: "Initial understanding of key stakeholders", correct: true },
+        { text: "Fixed project plan for all sprints", correct: false }
+      ],
+      points: 2,
+      explanation: "Clean starts need vision and stakeholder clarity, not complete specifications or fixed plans."
+    },
+    {
+      id: 7,
+      category: "A Clean Project Start",
+      question: "When using the Kano model for initial requirements, which TWO categories should be prioritized first?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Delighters",
+        "Basic/Must-have features",
+        "Performance features",
+        "Indifferent features",
+        "Reverse features"
+      ],
+      correctAnswer: [1, 2],
+      points: 1,
+      explanation: "Basic features are essential, and performance features drive satisfaction. Delighters can wait."
+    },
+    {
+      id: 8,
+      category: "A Clean Project Start",
+      question: "What is the main purpose of creating a context diagram at project start?",
+      type: "single",
+      options: [
+        "Define the complete system architecture",
+        "Identify system boundaries and external interfaces",
+        "Create detailed data models",
+        "Plan the sprint schedule"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "Context diagrams clarify what's inside vs outside the system and how they interact."
+    },
+    {
+      id: 9,
+      category: "A Clean Project Start",
+      question: "Which technique is LEAST useful for achieving stakeholder alignment at project start?",
+      type: "single",
+      options: [
+        "Vision workshop",
+        "Stakeholder mapping",
+        "Detailed technical design sessions",
+        "Goal modeling"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Technical design is premature at project start; focus should be on vision and stakeholder alignment."
+    },
+    {
+      id: 10,
+      category: "A Clean Project Start",
+      question: "How should risks be handled during project initiation in RE@Agile?",
+      type: "single",
+      options: [
+        "Complete a comprehensive risk analysis before starting",
+        "Ignore risks until they materialize",
+        "Identify major risks and address them iteratively",
+        "Delegate all risk management to the Scrum Master"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Agile approaches identify major risks early but address them iteratively rather than comprehensively upfront."
+    },
+
+    // Chapter 3: Handling Functional Requirements
+    {
+      id: 11,
+      category: "Handling Functional Requirements",
+      question: "Match each requirement level with its typical usage:",
+      type: "classification",
+      options: [
+        { text: "Epic", usage: "release" },
+        { text: "User Story", usage: "sprint" },
+        { text: "Task", usage: "daily" },
+        { text: "Theme", usage: "strategy" }
+      ],
+      points: 2,
+      explanation: "Themes guide strategy, epics frame releases, stories fit in sprints, and tasks organize daily work."
+    },
+    {
+      id: 12,
+      category: "Handling Functional Requirements",
+      question: "Which approach to requirements decomposition is most appropriate in RE@Agile?",
+      type: "single",
+      options: [
+        "Decompose all requirements to task level immediately",
+        "Never decompose requirements",
+        "Decompose just-in-time based on implementation timeline",
+        "Only decompose when problems arise"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Just-in-time decomposition avoids waste while ensuring requirements are ready when needed."
+    },
+    {
+      id: 13,
+      category: "Handling Functional Requirements",
+      question: "What are characteristics of a good user story?",
+      type: "truefalse",
+      statements: [
+        { text: "Negotiable in its implementation details", correct: true },
+        { text: "Assigned to a specific developer", correct: false },
+        { text: "Valuable to users or customers", correct: true },
+        { text: "Contains detailed technical specifications", correct: false }
+      ],
+      points: 1,
+      explanation: "Good stories are negotiable and valuable, not pre-assigned or technically detailed."
+    },
+    {
+      id: 14,
+      category: "Handling Functional Requirements",
+      question: "When should acceptance criteria be defined for a user story?",
+      type: "single",
+      options: [
+        "After implementation is complete",
+        "During sprint planning",
+        "Before the story enters a sprint",
+        "Only for failed stories"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Acceptance criteria must be clear before sprint commitment, typically during backlog refinement."
+    },
+    {
+      id: 15,
+      category: "Handling Functional Requirements",
+      question: "Which TWO patterns are most useful for splitting large user stories?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Split by workflow steps",
+        "Split by technical layers",
+        "Split by data variations",
+        "Split by developer skills",
+        "Split by lines of code"
+      ],
+      correctAnswer: [0, 2],
+      points: 1,
+      explanation: "Workflow steps and data variations create cohesive, valuable story splits. Technical splits break user value."
+    },
+
+    // Chapter 4: Handling Quality Requirements and Constraints
+    {
+      id: 16,
+      category: "Quality Requirements and Constraints",
+      question: "How should security requirements be handled in RE@Agile?",
+      type: "single",
+      options: [
+        "Address all security at the end of the project",
+        "Embed security criteria in relevant user stories and DoD",
+        "Create a separate security sprint",
+        "Leave security to the operations team"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "Security should be built in throughout development via story criteria and Definition of Done."
+    },
+    {
+      id: 17,
+      category: "Quality Requirements and Constraints",
+      question: "Classify these quality attributes according to ISO 25010:",
+      type: "classification",
+      options: [
+        { text: "Response time", category: "performance" },
+        { text: "Encryption strength", category: "security" },
+        { text: "User interface consistency", category: "usability" },
+        { text: "Mean time between failures", category: "reliability" }
+      ],
+      points: 2,
+      explanation: "ISO 25010 provides standard categories for quality attributes to ensure comprehensive coverage."
+    },
+    {
+      id: 18,
+      category: "Quality Requirements and Constraints",
+      question: "Which quality requirements typically belong in the Definition of Done?",
+      type: "truefalse",
+      statements: [
+        { text: "Code must have 80% test coverage", correct: true },
+        { text: "Feature must process 1000 transactions/second", correct: false },
+        { text: "All code must pass security scanning", correct: true },
+        { text: "Interface must support German language", correct: false }
+      ],
+      points: 1,
+      explanation: "DoD contains general quality criteria applied to all items. Specific performance or features go in story criteria."
+    },
+    {
+      id: 19,
+      category: "Quality Requirements and Constraints",
+      question: "When discovering a new regulatory constraint mid-project, what is the best approach?",
+      type: "single",
+      options: [
+        "Stop all work until fully analyzed",
+        "Ignore it until the next project phase",
+        "Add it to the backlog and prioritize based on compliance deadline",
+        "Assign it to the legal department"
+      ],
+      correctAnswer: [2],
+      points: 2,
+      explanation: "New constraints enter the backlog and get prioritized based on business impact and deadlines."
+    },
+    {
+      id: 20,
+      category: "Quality Requirements and Constraints",
+      question: "Which TWO approaches help manage technical debt as a constraint?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Allocate percentage of capacity each sprint",
+        "Address only in hardening sprints",
+        "Make debt visible as backlog items",
+        "Hide it from the Product Owner",
+        "Fix only when things break"
+      ],
+      correctAnswer: [0, 2],
+      points: 1,
+      explanation: "Regular capacity allocation and backlog visibility ensure technical debt is managed proactively."
+    },
+
+    // Chapter 5: Prioritizing and Estimating Requirements
+    {
+      id: 21,
+      category: "Prioritizing and Estimating",
+      question: "When using the MoSCoW method, what percentage of effort is typically recommended for 'Must Have' items?",
+      type: "single",
+      options: [
+        "100%",
+        "60-70%",
+        "40-50%",
+        "20-30%"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "60-70% for Must Have items leaves room for Should and Could items while ensuring core needs are met."
+    },
+    {
+      id: 22,
+      category: "Prioritizing and Estimating",
+      question: "What factors should be considered when calculating Cost of Delay?",
+      type: "truefalse",
+      statements: [
+        { text: "User/business value", correct: true },
+        { text: "Time criticality", correct: true },
+        { text: "Developer preferences", correct: false },
+        { text: "Risk reduction value", correct: true }
+      ],
+      points: 1,
+      explanation: "Cost of Delay combines business value, time sensitivity, and risk reduction - not team preferences."
+    },
+    {
+      id: 23,
+      category: "Prioritizing and Estimating",
+      question: "Which TWO situations indicate that relative estimation (story points) is breaking down?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Teams spend hours debating point values",
+        "Velocity is relatively stable",
+        "Points are converted to hours for planning",
+        "New team members quickly understand the scale",
+        "Stories of similar size take similar effort"
+      ],
+      correctAnswer: [0, 2],
+      points: 1,
+      explanation: "Excessive debate and hour conversion indicate misuse of story points, which should be quick and relative."
+    },
+    {
+      id: 24,
+      category: "Prioritizing and Estimating",
+      question: "How should dependencies affect prioritization?",
+      type: "single",
+      options: [
+        "Always do dependent items last",
+        "Dependencies should not affect priority",
+        "Consider dependency chains when ordering backlog",
+        "Only technical dependencies matter"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Dependencies create natural ordering constraints that must be considered in prioritization."
+    },
+    {
+      id: 25,
+      category: "Prioritizing and Estimating",
+      question: "What is the best approach for estimating items in the distant future?",
+      type: "single",
+      options: [
+        "Detailed bottom-up estimation",
+        "T-shirt sizing or rough order of magnitude",
+        "Don't estimate until closer to implementation",
+        "Use the same precision as near-term items"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "Rough estimates are sufficient for distant items - precision increases as implementation approaches."
+    },
+
+    // Chapter 6: Scaling RE@Agile
+    {
+      id: 26,
+      category: "Scaling RE@Agile",
+      question: "In SAFe, which role is primarily responsible for managing the Program Backlog?",
+      type: "single",
+      options: [
+        "Product Owner",
+        "Product Manager",
+        "Release Train Engineer",
+        "System Architect"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "In SAFe, Product Managers own the Program Backlog, while Product Owners manage Team Backlogs."
+    },
+    {
+      id: 27,
+      category: "Scaling RE@Agile",
+      question: "Which challenges are specific to requirements management in scaled agile?",
+      type: "truefalse",
+      statements: [
+        { text: "Maintaining consistent understanding across teams", correct: true },
+        { text: "Writing user stories", correct: false },
+        { text: "Managing cross-team dependencies", correct: true },
+        { text: "Estimating individual stories", correct: false }
+      ],
+      points: 1,
+      explanation: "Scaling introduces coordination challenges not present in single-team agile."
+    },
+    {
+      id: 28,
+      category: "Scaling RE@Agile",
+      question: "Which TWO practices help maintain requirements consistency across multiple teams?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Shared refinement sessions",
+        "Independent team backlogs",
+        "Common definition of ready",
+        "Different estimation scales per team",
+        "Separate Product Owners with no coordination"
+      ],
+      correctAnswer: [0, 2],
+      points: 1,
+      explanation: "Shared sessions and common standards create consistency; independence creates divergence."
+    },
+    {
+      id: 29,
+      category: "Scaling RE@Agile",
+      question: "How does requirements decomposition differ in scaled environments?",
+      type: "single",
+      options: [
+        "It doesn't differ from single team",
+        "Multiple levels of decomposition with clear ownership",
+        "Only one team does decomposition",
+        "Decomposition is not needed"
+      ],
+      correctAnswer: [1],
+      points: 2,
+      explanation: "Scaling requires multiple decomposition levels (portfolio→program→team) with clear ownership at each level."
+    },
+    {
+      id: 30,
+      category: "Scaling RE@Agile",
+      question: "What is the impact of Conway's Law on requirements in scaled agile?",
+      type: "single",
+      options: [
+        "No impact on requirements",
+        "Requirements structure tends to mirror organizational structure",
+        "Requirements become more detailed",
+        "Requirements quality improves"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "Conway's Law means system design (and requirements structure) reflects organizational communication patterns."
+    },
+
+    // Advanced Topics
+    {
+      id: 31,
+      category: "Requirements Communication",
+      question: "Which communication methods are most effective for distributed agile teams?",
+      type: "classification",
+      options: [
+        { text: "Synchronous video workshops", effectiveness: "high" },
+        { text: "Email chains", effectiveness: "low" },
+        { text: "Collaborative modeling tools", effectiveness: "high" },
+        { text: "Static documents", effectiveness: "low" }
+      ],
+      points: 2,
+      explanation: "Rich, interactive communication works better than static, asynchronous methods for distributed teams."
+    },
+    {
+      id: 32,
+      category: "Requirements Evolution",
+      question: "How should changing requirements be handled during a sprint?",
+      type: "single",
+      options: [
+        "Always accept changes to show agility",
+        "Never allow changes during a sprint",
+        "Evaluate impact and negotiate with team and PO",
+        "Automatically defer to next sprint"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Changes need evaluation and negotiation to balance agility with team stability and commitments."
+    },
+    {
+      id: 33,
+      category: "Requirements Metrics",
+      question: "Which metrics indicate healthy requirements practices?",
+      type: "truefalse",
+      statements: [
+        { text: "High requirements stability throughout project", correct: false },
+        { text: "Low story rejection rate during sprint planning", correct: true },
+        { text: "Increasing velocity over time", correct: false },
+        { text: "Short cycle time from idea to production", correct: true }
+      ],
+      points: 2,
+      explanation: "Healthy practices show in ready stories and fast delivery, not artificial stability or velocity games."
+    },
+    {
+      id: 34,
+      category: "Tool Integration",
+      question: "What are THREE essential integrations for RE@Agile tooling?",
+      type: "multiple",
+      selectCount: 3,
+      options: [
+        "Version control systems",
+        "Test management tools",
+        "Email clients",
+        "CI/CD pipelines",
+        "Spreadsheet software",
+        "Time tracking systems"
+      ],
+      correctAnswer: [0, 1, 3],
+      points: 1,
+      explanation: "Development, testing, and deployment tools need integration for traceability and automation."
+    },
+    {
+      id: 35,
+      category: "Stakeholder Engagement",
+      question: "How frequently should key stakeholders be engaged in RE@Agile?",
+      type: "single",
+      options: [
+        "Only at project start and end",
+        "Every sprint through reviews and refinement",
+        "Only when major decisions are needed",
+        "Quarterly steering committees"
+      ],
+      correctAnswer: [1],
+      points: 1,
+      explanation: "Regular sprint cadence ensures continuous stakeholder engagement and feedback."
+    },
+    {
+      id: 36,
+      category: "Requirements Modeling",
+      question: "When are formal models most valuable in RE@Agile?",
+      type: "single",
+      options: [
+        "Never - agile avoids all modeling",
+        "For all requirements",
+        "For complex domains or compliance needs",
+        "Only in waterfall projects"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Models add value for complexity and compliance, but should be used judiciously in agile contexts."
+    },
+    {
+      id: 37,
+      category: "Continuous Delivery",
+      question: "How do requirements practices change with continuous delivery?",
+      type: "truefalse",
+      statements: [
+        { text: "Feature toggles enable incremental release", correct: true },
+        { text: "All requirements must be fully complete before release", correct: false },
+        { text: "Monitoring becomes part of requirements validation", correct: true },
+        { text: "Documentation becomes more important", correct: false }
+      ],
+      points: 1,
+      explanation: "CD enables incremental release strategies and shifts validation to include production monitoring."
+    },
+    {
+      id: 38,
+      category: "Innovation and Experiments",
+      question: "How should experimental requirements be handled in the backlog?",
+      type: "single",
+      options: [
+        "Mix them with regular stories",
+        "Keep them in a separate innovation backlog",
+        "Time-box them and set clear learning goals",
+        "Avoid experiments in agile"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Experiments need time boxes and learning goals to ensure they deliver value even if the feature fails."
+    },
+    {
+      id: 39,
+      category: "Requirements Debt",
+      question: "Which TWO indicators suggest accumulating requirements debt?",
+      type: "multiple",
+      selectCount: 2,
+      options: [
+        "Increasing clarification questions during development",
+        "Stable velocity",
+        "Growing list of assumptions in stories",
+        "Regular stakeholder attendance",
+        "Consistent estimation accuracy"
+      ],
+      correctAnswer: [0, 2],
+      points: 2,
+      explanation: "Increasing questions and assumptions indicate requirements lack necessary detail or clarity."
+    },
+    {
+      id: 40,
+      category: "Compliance and Audit",
+      question: "How should requirements traceability be maintained for audit purposes in RE@Agile?",
+      type: "single",
+      options: [
+        "Manual trace matrices updated quarterly",
+        "No traceability in agile",
+        "Automated toolchain linking stories to code and tests",
+        "Dedicated compliance sprints"
+      ],
+      correctAnswer: [2],
+      points: 2,
+      explanation: "Automation provides continuous, reliable traceability without manual overhead."
+    },
+    {
+      id: 41,
+      category: "Cultural Change",
+      question: "What are the biggest cultural shifts needed for RE@Agile?",
+      type: "truefalse",
+      statements: [
+        { text: "From gatekeeper to facilitator mindset", correct: true },
+        { text: "From perfectionism to 'good enough'", correct: true },
+        { text: "From written to verbal communication only", correct: false },
+        { text: "From solo work to collaboration", correct: true }
+      ],
+      points: 1,
+      explanation: "RE@Agile requires mindset shifts while maintaining appropriate documentation practices."
+    },
+    {
+      id: 42,
+      category: "Architecture and Requirements",
+      question: "How should architectural requirements be handled in RE@Agile?",
+      type: "single",
+      options: [
+        "Complete architecture before any development",
+        "Ignore architecture in agile",
+        "Evolve architecture through architectural runway",
+        "Delegate entirely to architects"
+      ],
+      correctAnswer: [2],
+      points: 1,
+      explanation: "Architectural runway provides just-enough architecture just-in-time for upcoming features."
+    },
+    {
+      id: 43,
+      category: "Global Distribution",
+      question: "Which THREE practices are essential for globally distributed RE@Agile teams?",
+      type: "multiple",
+      selectCount: 3,
+      options: [
+        "Cultural awareness training",
+        "24-hour development cycles",
+        "Documented decisions and rationale",
+        "Single timezone operations",
+        "Visual modeling tools",
+        "English-only communication"
+      ],
+      correctAnswer: [0, 2, 4],
+      points: 2,
+      explanation: "Global teams need cultural awareness, clear documentation, and visual tools to bridge distance gaps."
+    },
+    {
+      id: 44,
+      category: "Machine Learning Systems",
+      question: "What unique requirements challenges exist for ML-based systems?",
+      type: "truefalse",
+      statements: [
+        { text: "Requirements must include data quality criteria", correct: true },
+        { text: "Acceptance criteria can always be deterministic", correct: false },
+        { text: "Model behavior may change without code changes", correct: true },
+        { text: "Traditional testing fully validates ML systems", correct: false }
+      ],
+      points: 3,
+      explanation: "ML systems require new approaches to requirements including data quality and probabilistic acceptance criteria."
+    },
+    {
+      id: 45,
+      category: "Future Trends",
+      question: "Which trend will most impact RE@Agile practices in the next 5 years?",
+      type: "single",
+      options: [
+        "Return to waterfall methods",
+        "AI-assisted requirements elicitation and analysis",
+        "Elimination of all documentation",
+        "Longer sprint cycles"
+      ],
+      correctAnswer: [1],
+      points: 2,
+      explanation: "AI tools are beginning to assist with requirements analysis, pattern detection, and quality checking."
+    }
+  ]
+};
+
+// Main component
+export default function IREBPracticeInterface() {
+  const [selectedExam, setSelectedExam] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState([]);
+  const [classificationAnswers, setClassificationAnswers] = useState({});
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [answers, setAnswers] = useState({});
+  const [timeRemaining, setTimeRemaining] = useState(75 * 60);
+  const [isTimerActive, setIsTimerActive] = useState(false);
+  const [examStarted, setExamStarted] = useState(false);
+  const [examCompleted, setExamCompleted] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [timeExtension, setTimeExtension] = useState(false);
+
+  // Get current exam data
+  const examData = selectedExam === 'mock1' ? mockExam1 : selectedExam === 'mock2' ? mockExam2 : null;
+  const currentQuestion = examData?.questions[currentQuestionIndex];
+
+  // Timer effect
+  useEffect(() => {
+    let interval = null;
+    if (isTimerActive && timeRemaining > 0) {
+      interval = setInterval(() => {
+        setTimeRemaining(time => {
+          if (time <= 1) {
+            setExamCompleted(true);
+            setIsTimerActive(false);
+            return 0;
+          }
+          return time - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerActive, timeRemaining]);
+
+  // Format time
+  const formatTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Start exam
+  const startExam = (examId) => {
+    setSelectedExam(examId);
+    setExamStarted(true);
+    setIsTimerActive(true);
+    setTimeRemaining(timeExtension ? 90 * 60 : 75 * 60);
+  };
+
+  // Handle answer selection
+  const handleAnswerSelect = (answerIndex) => {
+    if (!showExplanation) {
+      if (currentQuestion.type === 'single') {
+        setSelectedAnswers([answerIndex]);
+      } else if (currentQuestion.type === 'multiple') {
+        const newAnswers = [...selectedAnswers];
+        const idx = newAnswers.indexOf(answerIndex);
+        if (idx > -1) {
+          newAnswers.splice(idx, 1);
+        } else {
+          if (newAnswers.length < currentQuestion.selectCount) {
+            newAnswers.push(answerIndex);
+          }
+        }
+        setSelectedAnswers(newAnswers);
+      }
+    }
+  };
+
+  // Handle classification answers
+  const handleClassificationAnswer = (optionIndex, classification) => {
+    if (!showExplanation) {
+      setClassificationAnswers({
+        ...classificationAnswers,
+        [optionIndex]: classification
+      });
+    }
+  };
+
+  // Check if answer is correct
+  const isAnswerCorrect = () => {
+    if (currentQuestion.type === 'single' || currentQuestion.type === 'multiple') {
+      if (!currentQuestion.correctAnswer || !Array.isArray(selectedAnswers)) return false;
+      const correct = currentQuestion.correctAnswer.sort().join(',');
+      const selected = selectedAnswers.sort().join(',');
+      return correct === selected;
+    } else if (currentQuestion.type === 'truefalse') {
+      if (!currentQuestion.statements) return false;
+      return currentQuestion.statements.every((stmt, idx) => 
+        classificationAnswers[idx] === stmt.correct
+      );
+    } else if (currentQuestion.type === 'classification') {
+      if (!currentQuestion.options) return false;
+      return currentQuestion.options.every((opt, idx) => {
+        const answer = classificationAnswers[idx];
+        if (opt.supportive !== undefined) return answer === opt.supportive;
+        if (opt.wellSuited !== undefined) return answer === opt.wellSuited;
+        if (opt.product !== undefined) return answer === opt.product;
+        if (opt.usage !== undefined) return answer === (opt.usage === 'release' || opt.usage === 'strategy' ? 'strategic' : 'operational');
+        if (opt.category !== undefined) return answer === opt.category;
+        if (opt.effectiveness !== undefined) return answer === opt.effectiveness;
+        if (opt.purpose !== undefined) return answer === opt.purpose;
+        return true;
+      });
+    }
+    return false;
+  };
+
+  // Submit answer
+  const submitAnswer = () => {
+    const answerData = {
+      type: currentQuestion.type,
+      selectedAnswers: currentQuestion.type === 'classification' || currentQuestion.type === 'truefalse' 
+        ? classificationAnswers 
+        : selectedAnswers,
+      correct: isAnswerCorrect(),
+      points: isAnswerCorrect() ? currentQuestion.points : 0
+    };
+    
+    setAnswers({
+      ...answers,
+      [currentQuestionIndex]: answerData
+    });
+    setShowExplanation(true);
+  };
+
+  // Navigate to next question
+  const nextQuestion = () => {
+    if (currentQuestionIndex < examData.questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      const savedAnswer = answers[currentQuestionIndex + 1];
+      if (savedAnswer) {
+        if (savedAnswer.type === 'classification' || savedAnswer.type === 'truefalse') {
+          setClassificationAnswers(savedAnswer.selectedAnswers || {});
+        } else {
+          setSelectedAnswers(savedAnswer.selectedAnswers || []);
+        }
+      } else {
+        setSelectedAnswers([]);
+        setClassificationAnswers({});
+      }
+      setShowExplanation(false);
+    } else {
+      setExamCompleted(true);
+      setIsTimerActive(false);
+    }
+  };
+
+  // Navigate to previous question
+  const previousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      const savedAnswer = answers[currentQuestionIndex - 1];
+      if (savedAnswer) {
+        if (savedAnswer.type === 'classification' || savedAnswer.type === 'truefalse') {
+          setClassificationAnswers(savedAnswer.selectedAnswers || {});
+        } else {
+          setSelectedAnswers(savedAnswer.selectedAnswers || []);
+        }
+      } else {
+        setSelectedAnswers([]);
+        setClassificationAnswers({});
+      }
+      setShowExplanation(false);
+    }
+  };
+
+  // Calculate score
+  const calculateScore = () => {
+    let earnedPoints = 0;
+    let answeredQuestions = 0;
+    
+    Object.values(answers).forEach(answer => {
+      if (answer && answer.selectedAnswers) {
+        const hasAnswer = Array.isArray(answer.selectedAnswers) 
+          ? answer.selectedAnswers.length > 0 
+          : Object.keys(answer.selectedAnswers).length > 0;
+        
+        if (hasAnswer) {
+          answeredQuestions++;
+          earnedPoints += answer.points || 0;
+        }
+      }
+    });
+    
+    const percentage = examData?.totalPoints > 0 
+      ? Math.round((earnedPoints / examData.totalPoints) * 100)
+      : 0;
+    
+    return {
+      earnedPoints,
+      totalPoints: examData?.totalPoints || 0,
+      percentage,
+      answeredQuestions,
+      totalQuestions: examData?.totalQuestions || 0,
+      passed: percentage >= (examData?.passingPercentage || 70)
+    };
+  };
+
+  // Reset exam
+  const resetExam = () => {
+    setSelectedExam(null);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswers([]);
+    setClassificationAnswers({});
+    setShowExplanation(false);
+    setAnswers({});
+    setTimeRemaining(75 * 60);
+    setIsTimerActive(false);
+    setExamStarted(false);
+    setExamCompleted(false);
+    setShowResults(false);
+    setTimeExtension(false);
+  };
+
+  // Navigate to specific question
+  const goToQuestion = (index) => {
+    if (!examData || !examData.questions[index]) return;
+    
+    setCurrentQuestionIndex(index);
+    const savedAnswer = answers[index];
+    if (savedAnswer) {
+      if (savedAnswer.type === 'classification' || savedAnswer.type === 'truefalse') {
+        setClassificationAnswers(savedAnswer.selectedAnswers || {});
+      } else {
+        setSelectedAnswers(savedAnswer.selectedAnswers || []);
+      }
+    } else {
+      setSelectedAnswers([]);
+      setClassificationAnswers({});
+    }
+    setShowExplanation(false);
+  };
+
+  // Welcome screen
+  if (!examStarted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-xl p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold text-gray-800">
+                IREB CPRE AL RE@Agile Practice Platform
+              </h1>
+              <Trophy className="w-10 h-10 text-yellow-500" />
+            </div>
+            
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <Target className="w-6 h-6 text-blue-600 mr-2" />
+                Welcome to Your Certification Practice!
+              </h2>
+              <p className="text-gray-600 mb-6">
+                These practice exams follow the official IREB CPRE Advanced Level RE@Agile Practitioner format
+                to help you prepare effectively for your certification.
+              </p>
+              
+              <div className="bg-blue-50 p-6 rounded-lg mb-6">
+                <h3 className="font-semibold text-lg mb-3">Official Exam Format:</h3>
+                <div className="grid grid-cols-2 gap-4 text-gray-700">
+                  <div className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium">45 questions total</p>
+                      <p className="text-sm text-gray-600">Mix of single, multiple, and classification</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <Clock className="w-5 h-5 text-blue-500 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium">75 minutes standard</p>
+                      <p className="text-sm text-gray-600">90 minutes with extension</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <Target className="w-5 h-5 text-purple-500 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Variable point values</p>
+                      <p className="text-sm text-gray-600">1-3 points per question</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <Trophy className="w-5 h-5 text-yellow-500 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium">70% to pass</p>
+                      <p className="text-sm text-gray-600">Based on total points, not question count</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 p-4 rounded-lg mb-6">
+                <p className="text-sm text-gray-700">
+                  <strong>Practice Mode Benefits:</strong> Unlike the real exam, you'll see explanations 
+                  after each question to enhance your learning. Track your progress across different 
+                  syllabus categories!
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={timeExtension}
+                    onChange={(e) => setTimeExtension(e.target.checked)}
+                    className="mr-2"
+                  />
+                  <span className="text-gray-700">
+                    Request 15-minute time extension (for non-native English speakers)
+                  </span>
+                </label>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 p-6 rounded-lg border-2 border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
+                     onClick={() => startExam('mock1')}>
+                  <h3 className="text-lg font-semibold mb-2">Mock Exam 1</h3>
+                  <p className="text-gray-600 mb-4">
+                    Complete 45-question practice exam covering all RE@Agile syllabus topics
+                  </p>
+                  <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors w-full">
+                    Start Exam 1
+                  </button>
+                </div>
+                
+                <div className="bg-gray-50 p-6 rounded-lg border-2 border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
+                     onClick={() => startExam('mock2')}>
+                  <h3 className="text-lg font-semibold mb-2">Mock Exam 2</h3>
+                  <p className="text-gray-600 mb-4">
+                    Alternative question set with different scenarios and focus areas
+                  </p>
+                  <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors w-full">
+                    Start Exam 2
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Results screen
+  if (examCompleted && showResults) {
+    const score = calculateScore();
+    const categorizedQuestions = {};
+    
+    examData.questions.forEach((question, index) => {
+      if (!categorizedQuestions[question.category]) {
+        categorizedQuestions[question.category] = {
+          questions: [],
+          totalPoints: 0,
+          earnedPoints: 0
+        };
+      }
+      
+      const answer = answers[index];
+      categorizedQuestions[question.category].questions.push({
+        ...question,
+        answered: answer ? (
+          Array.isArray(answer.selectedAnswers) 
+            ? answer.selectedAnswers.length > 0 
+            : (answer.selectedAnswers && Object.keys(answer.selectedAnswers).length > 0)
+        ) : false,
+        correct: answer?.correct || false,
+        earnedPoints: answer?.points || 0
+      });
+      categorizedQuestions[question.category].totalPoints += question.points;
+      categorizedQuestions[question.category].earnedPoints += answer?.points || 0;
+    });
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-xl p-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Exam Results - {examData.title}</h1>
+            
+            <div className={`p-6 rounded-lg mb-6 ${score.passed ? 'bg-green-50' : 'bg-red-50'}`}>
+              <div className="text-center">
+                <div className={`text-5xl font-bold mb-2 ${score.passed ? 'text-green-600' : 'text-red-600'}`}>
+                  {score.percentage}%
+                </div>
+                <p className={`text-xl font-semibold ${score.passed ? 'text-green-700' : 'text-red-700'}`}>
+                  {score.passed ? 'Congratulations! You Passed!' : 'Keep Practicing!'}
+                </p>
+                <p className="text-gray-600 mt-2">
+                  You earned {score.earnedPoints} out of {score.totalPoints} points
+                </p>
+                <p className="text-gray-600">
+                  Questions answered: {score.answeredQuestions} out of {score.totalQuestions}
+                </p>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-4">Performance by Category</h2>
+              {Object.entries(categorizedQuestions).map(([category, data]) => {
+                const categoryPercentage = data.totalPoints > 0 
+                  ? Math.round((data.earnedPoints / data.totalPoints) * 100)
+                  : 0;
+                
+                return (
+                  <div key={category} className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">{category}</span>
+                      <span className="text-sm text-gray-600">
+                        {data.earnedPoints}/{data.totalPoints} points ({categoryPercentage}%)
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${categoryPercentage}%` }}
+                      />
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {data.questions.filter(q => q.correct).length}/{data.questions.length} questions correct
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="text-center space-x-4">
+              <button
+                onClick={() => {
+                  setShowResults(false);
+                  setExamCompleted(false);
+                }}
+                className="bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+              >
+                Review Answers
+              </button>
+              <button
+                onClick={resetExam}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-flex items-center"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Try Another Exam
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Exam completion screen
+  if (examCompleted && !showResults) {
+    const score = calculateScore();
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-xl p-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Exam Completed!</h1>
+            
+            <div className="bg-blue-50 p-6 rounded-lg mb-6">
+              <p className="text-lg mb-4">
+                You have completed the practice exam.
+              </p>
+              <div className="grid grid-cols-2 gap-4 text-gray-700">
+                <div>
+                  <p className="font-medium">Questions answered:</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {score.answeredQuestions} / {score.totalQuestions}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-medium">Time used:</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {formatTime((timeExtension ? 90 * 60 : 75 * 60) - timeRemaining)}
+                  </p>
+                </div>
+              </div>
+              {score.answeredQuestions < score.totalQuestions && (
+                <p className="text-orange-600 mt-4 font-medium">
+                  ⚠️ You have {score.totalQuestions - score.answeredQuestions} unanswered questions!
+                </p>
+              )}
+            </div>
+            
+            <div className="text-center space-x-4">
+              <button
+                onClick={() => {
+                  setExamCompleted(false);
+                  setIsTimerActive(true);
+                }}
+                className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+              >
+                Continue Review
+              </button>
+              <button
+                onClick={() => setShowResults(true)}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              >
+                View Results
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main exam interface
+  if (!currentQuestion || !examData) return null;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-xl font-bold text-gray-800">{examData.title}</h1>
+              <p className="text-sm text-gray-600">
+                Question {currentQuestionIndex + 1} of {examData.totalQuestions} • 
+                {currentQuestion.points} point{currentQuestion.points > 1 ? 's' : ''}
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center text-lg">
+                <Clock className="w-5 h-5 mr-2 text-blue-600" />
+                <span className={`font-mono ${timeRemaining < 300 ? 'text-red-600' : 'text-gray-700'}`}>
+                  {formatTime(timeRemaining)}
+                </span>
+              </div>
+              <button
+                onClick={() => setExamCompleted(true)}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors"
+              >
+                End Exam
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Question navigation */}
+        <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
+          <div className="grid grid-cols-9 sm:grid-cols-15 gap-1">
+            {examData.questions.map((q, idx) => {
+              const answer = answers[idx];
+              const isAnswered = answer && answer.selectedAnswers && (
+                Array.isArray(answer.selectedAnswers) 
+                  ? answer.selectedAnswers.length > 0 
+                  : Object.keys(answer.selectedAnswers).length > 0
+              );
+              
+              return (
+                <button
+                  key={idx}
+                  onClick={() => goToQuestion(idx)}
+                  className={`aspect-square flex items-center justify-center text-xs font-medium rounded transition-colors ${
+                    idx === currentQuestionIndex
+                      ? 'bg-blue-600 text-white'
+                      : isAnswered
+                      ? 'bg-green-500 text-white hover:bg-green-600'
+                      : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
+                  title={`Question ${idx + 1} - ${q.category}`}
+                >
+                  {idx + 1}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Question content */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="mb-4">
+            <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-2">
+              {currentQuestion.category}
+            </span>
+            <span className={`inline-block px-3 py-1 ml-2 rounded-full text-sm font-medium mb-2 ${
+              currentQuestion.points === 1 ? 'bg-green-100 text-green-700' :
+              currentQuestion.points === 2 ? 'bg-yellow-100 text-yellow-700' :
+              'bg-red-100 text-red-700'
+            }`}>
+              {currentQuestion.points} Point{currentQuestion.points > 1 ? 's' : ''}
+            </span>
+            {currentQuestion.type === 'multiple' && (
+              <span className="inline-block px-3 py-1 ml-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-2">
+                Select {currentQuestion.selectCount}
+              </span>
+            )}
+          </div>
+
+          <h2 className="text-lg font-semibold text-gray-800 mb-6">
+            {currentQuestion.question}
+          </h2>
+
+          {/* Answer options based on question type */}
+          {currentQuestion.type === 'single' && (
+            <div className="space-y-3 mb-6">
+              {currentQuestion.options.map((option, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleAnswerSelect(index)}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    showExplanation
+                      ? currentQuestion.correctAnswer.includes(index)
+                        ? 'border-green-500 bg-green-50'
+                        : selectedAnswers.includes(index)
+                        ? 'border-red-500 bg-red-50'
+                        : 'border-gray-200 bg-gray-50'
+                      : selectedAnswers.includes(index)
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 mr-3">
+                      {showExplanation ? (
+                        currentQuestion.correctAnswer.includes(index) ? (
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        ) : selectedAnswers.includes(index) ? (
+                          <XCircle className="w-5 h-5 text-red-600" />
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                        )
+                      ) : (
+                        <div className={`w-5 h-5 rounded-full border-2 ${
+                          selectedAnswers.includes(index) ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
+                        }`} />
+                      )}
+                    </div>
+                    <p className="text-gray-700">{option}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {currentQuestion.type === 'multiple' && (
+            <div className="space-y-3 mb-6">
+              {currentQuestion.options.map((option, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleAnswerSelect(index)}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    showExplanation
+                      ? currentQuestion.correctAnswer.includes(index)
+                        ? 'border-green-500 bg-green-50'
+                        : selectedAnswers.includes(index)
+                        ? 'border-red-500 bg-red-50'
+                        : 'border-gray-200 bg-gray-50'
+                      : selectedAnswers.includes(index)
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 mr-3">
+                      {showExplanation ? (
+                        currentQuestion.correctAnswer.includes(index) ? (
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        ) : selectedAnswers.includes(index) ? (
+                          <XCircle className="w-5 h-5 text-red-600" />
+                        ) : (
+                          <div className="w-5 h-5 rounded border-2 border-gray-300" />
+                        )
+                      ) : (
+                        <div className={`w-5 h-5 rounded border-2 ${
+                          selectedAnswers.includes(index) 
+                            ? 'bg-blue-600 border-blue-600' 
+                            : 'border-gray-300'
+                        }`}>
+                          {selectedAnswers.includes(index) && (
+                            <svg className="w-3 h-3 text-white m-0.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-gray-700">{option}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {currentQuestion.type === 'truefalse' && (
+            <div className="space-y-3 mb-6">
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="grid grid-cols-3 gap-2 text-sm font-medium text-gray-700">
+                  <div></div>
+                  <div className="text-center">True</div>
+                  <div className="text-center">False</div>
+                </div>
+              </div>
+              {currentQuestion.statements.map((statement, index) => (
+                <div key={index} className="grid grid-cols-3 gap-2 items-center">
+                  <div className="text-sm text-gray-700 pr-4">{statement.text}</div>
+                  <div className="text-center">
+                    <button
+                      onClick={() => handleClassificationAnswer(index, true)}
+                      className={`w-8 h-8 rounded-full border-2 ${
+                        showExplanation
+                          ? statement.correct === true
+                            ? 'bg-green-500 border-green-500'
+                            : classificationAnswers[index] === true
+                            ? 'bg-red-500 border-red-500'
+                            : 'border-gray-300'
+                          : classificationAnswers[index] === true
+                          ? 'bg-blue-600 border-blue-600'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    />
+                  </div>
+                  <div className="text-center">
+                    <button
+                      onClick={() => handleClassificationAnswer(index, false)}
+                      className={`w-8 h-8 rounded-full border-2 ${
+                        showExplanation
+                          ? statement.correct === false
+                            ? 'bg-green-500 border-green-500'
+                            : classificationAnswers[index] === false
+                            ? 'bg-red-500 border-red-500'
+                            : 'border-gray-300'
+                          : classificationAnswers[index] === false
+                          ? 'bg-blue-600 border-blue-600'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {currentQuestion.type === 'classification' && (
+            <div className="space-y-3 mb-6">
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="grid grid-cols-3 gap-2 text-sm font-medium text-gray-700">
+                  <div></div>
+                  {currentQuestion.options[0].supportive !== undefined && (
+                    <>
+                      <div className="text-center">Supportive</div>
+                      <div className="text-center">Not Supportive</div>
+                    </>
+                  )}
+                  {currentQuestion.options[0].wellSuited !== undefined && (
+                    <>
+                      <div className="text-center">Well Suited</div>
+                      <div className="text-center">Not Well Suited</div>
+                    </>
+                  )}
+                  {currentQuestion.options[0].product !== undefined && (
+                    <>
+                      <div className="text-center">Product Constraint</div>
+                      <div className="text-center">Process Constraint</div>
+                    </>
+                  )}
+                  {currentQuestion.options[0].usage !== undefined && (
+                    <>
+                      <div className="text-center">Strategic</div>
+                      <div className="text-center">Operational</div>
+                    </>
+                  )}
+                  {currentQuestion.options[0].category !== undefined && (
+                    <>
+                      <div className="text-center">{currentQuestion.options[0].category}</div>
+                      <div className="text-center">Other</div>
+                    </>
+                  )}
+                  {currentQuestion.options[0].effectiveness !== undefined && (
+                    <>
+                      <div className="text-center">High</div>
+                      <div className="text-center">Low</div>
+                    </>
+                  )}
+                  {currentQuestion.options[0].purpose !== undefined && (
+                    <>
+                      <div className="text-center">Validation</div>
+                      <div className="text-center">Elicitation</div>
+                    </>
+                  )}
+                </div>
+              </div>
+              {currentQuestion.options.map((option, index) => {
+                const getCorrectValue = () => {
+                  if (option.supportive !== undefined) return option.supportive;
+                  if (option.wellSuited !== undefined) return option.wellSuited;
+                  if (option.product !== undefined) return option.product;
+                  if (option.usage !== undefined) return option.usage === 'release' || option.usage === 'strategy' ? 'strategic' : 'operational';
+                  if (option.category !== undefined) return option.category;
+                  if (option.effectiveness !== undefined) return option.effectiveness;
+                  if (option.purpose !== undefined) return option.purpose;
+                  return null;
+                };
+
+                const correctValue = getCorrectValue();
+
+                return (
+                  <div key={index} className="grid grid-cols-3 gap-2 items-center">
+                    <div className="text-sm text-gray-700 pr-4">{option.text}</div>
+                    <div className="text-center">
+                      <button
+                        onClick={() => handleClassificationAnswer(index, 
+                          option.supportive !== undefined ? true :
+                          option.wellSuited !== undefined ? true :
+                          option.product !== undefined ? true :
+                          option.usage !== undefined ? 'strategic' :
+                          option.category !== undefined ? option.category :
+                          option.effectiveness !== undefined ? 'high' :
+                          option.purpose !== undefined ? 'validation' :
+                          true
+                        )}
+                        className={`w-8 h-8 rounded-full border-2 ${
+                          showExplanation
+                            ? correctValue === (
+                                option.supportive !== undefined ? true :
+                                option.wellSuited !== undefined ? true :
+                                option.product !== undefined ? true :
+                                option.usage !== undefined ? 'strategic' :
+                                option.category !== undefined ? option.category :
+                                option.effectiveness !== undefined ? 'high' :
+                                option.purpose !== undefined ? 'validation' :
+                                true
+                              )
+                              ? 'bg-green-500 border-green-500'
+                              : classificationAnswers[index] === (
+                                option.supportive !== undefined ? true :
+                                option.wellSuited !== undefined ? true :
+                                option.product !== undefined ? true :
+                                option.usage !== undefined ? 'strategic' :
+                                option.category !== undefined ? option.category :
+                                option.effectiveness !== undefined ? 'high' :
+                                option.purpose !== undefined ? 'validation' :
+                                true
+                              )
+                              ? 'bg-red-500 border-red-500'
+                              : 'border-gray-300'
+                            : classificationAnswers[index] === (
+                                option.supportive !== undefined ? true :
+                                option.wellSuited !== undefined ? true :
+                                option.product !== undefined ? true :
+                                option.usage !== undefined ? 'strategic' :
+                                option.category !== undefined ? option.category :
+                                option.effectiveness !== undefined ? 'high' :
+                                option.purpose !== undefined ? 'validation' :
+                                true
+                              )
+                            ? 'bg-blue-600 border-blue-600'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                      />
+                    </div>
+                    <div className="text-center">
+                      <button
+                        onClick={() => handleClassificationAnswer(index, 
+                          option.supportive !== undefined ? false :
+                          option.wellSuited !== undefined ? false :
+                          option.product !== undefined ? false :
+                          option.usage !== undefined ? 'operational' :
+                          option.category !== undefined ? 'other' :
+                          option.effectiveness !== undefined ? 'low' :
+                          option.purpose !== undefined ? 'elicitation' :
+                          false
+                        )}
+                        className={`w-8 h-8 rounded-full border-2 ${
+                          showExplanation
+                            ? correctValue === (
+                                option.supportive !== undefined ? false :
+                                option.wellSuited !== undefined ? false :
+                                option.product !== undefined ? false :
+                                option.usage !== undefined ? 'operational' :
+                                option.category !== undefined ? 'other' :
+                                option.effectiveness !== undefined ? 'low' :
+                                option.purpose !== undefined ? 'elicitation' :
+                                false
+                              )
+                              ? 'bg-green-500 border-green-500'
+                              : classificationAnswers[index] === (
+                                option.supportive !== undefined ? false :
+                                option.wellSuited !== undefined ? false :
+                                option.product !== undefined ? false :
+                                option.usage !== undefined ? 'operational' :
+                                option.category !== undefined ? 'other' :
+                                option.effectiveness !== undefined ? 'low' :
+                                option.purpose !== undefined ? 'elicitation' :
+                                false
+                              )
+                              ? 'bg-red-500 border-red-500'
+                              : 'border-gray-300'
+                            : classificationAnswers[index] === (
+                                option.supportive !== undefined ? false :
+                                option.wellSuited !== undefined ? false :
+                                option.product !== undefined ? false :
+                                option.usage !== undefined ? 'operational' :
+                                option.category !== undefined ? 'other' :
+                                option.effectiveness !== undefined ? 'low' :
+                                option.purpose !== undefined ? 'elicitation' :
+                                false
+                              )
+                            ? 'bg-blue-600 border-blue-600'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {showExplanation && (
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+              <div className="flex">
+                <AlertCircle className="w-5 h-5 text-blue-400 mr-2 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-blue-800 mb-1">Explanation:</p>
+                  <p className="text-blue-700">{currentQuestion.explanation}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Navigation buttons */}
+          <div className="flex justify-between items-center">
+            <button
+              onClick={previousQuestion}
+              disabled={currentQuestionIndex === 0}
+              className={`flex items-center px-4 py-2 rounded-lg font-semibold transition-colors ${
+                currentQuestionIndex === 0
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-600 text-white hover:bg-gray-700'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </button>
+
+            {!showExplanation && !answers[currentQuestionIndex] ? (
+              <button
+                onClick={submitAnswer}
+                disabled={
+                  (currentQuestion.type === 'single' && selectedAnswers.length === 0) ||
+                  (currentQuestion.type === 'multiple' && selectedAnswers.length !== currentQuestion.selectCount) ||
+                  (currentQuestion.type === 'truefalse' && 
+                    Object.keys(classificationAnswers).length !== currentQuestion.statements.length) ||
+                  (currentQuestion.type === 'classification' && 
+                    Object.keys(classificationAnswers).length !== currentQuestion.options.length)
+                }
+                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                  ((currentQuestion.type === 'single' && selectedAnswers.length === 0) ||
+                  (currentQuestion.type === 'multiple' && selectedAnswers.length !== currentQuestion.selectCount) ||
+                  (currentQuestion.type === 'truefalse' && 
+                    Object.keys(classificationAnswers).length !== currentQuestion.statements.length) ||
+                  (currentQuestion.type === 'classification' && 
+                    Object.keys(classificationAnswers).length !== currentQuestion.options.length))
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                Submit Answer
+              </button>
+            ) : (
+              <div className="text-sm text-gray-600 font-medium">
+                {answers[currentQuestionIndex] && !showExplanation && (
+                  <span className="text-green-600">✓ Answer saved</span>
+                )}
+              </div>
+            )}
+
+            <button
+              onClick={nextQuestion}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            >
+              {currentQuestionIndex === examData.questions.length - 1 ? 'Finish Exam' : 'Next'}
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
